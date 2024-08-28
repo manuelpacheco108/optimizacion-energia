@@ -1,0 +1,23 @@
+{
+    "Items": [
+        {
+            "Date": "2024-08-27",
+            "ListEntities": [
+                {
+                    "Id": "Sistema",
+                    "Values": {
+                        "MetricId": "PrecBolsNaci",
+                        "MetricName": "Precio Bolsa Nacional por Sistema",
+                        "Entity": "Sistema",
+                        "MaxDays": 31,
+                        "Type": "HourlyEntities",
+                        "Url": "http://servapibi.xm.com.co/hourly",
+                        "Filter": "No aplica",
+                        "MetricUnits": "COP/kWh",
+                        "MetricDescription": "Precio de oferta de la última planta flexible para atender la demanda comercial nacional, más delta de incremento para remunerar los costos no cubiertos de las plantas térmicas en el despacho ideal."
+                    }
+                }
+            ]
+        }
+    ]
+}

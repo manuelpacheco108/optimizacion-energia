@@ -1,15 +1,32 @@
-from pydataxm import* # type: ignore
+from pydataxm import pydataxm  # type: ignore
 import csv
 
-objetoAPI = pydataxm.ReadDB()
+# Request ´Body´ metodo POST
+#{
+#   "MetricId": "MetricID",
+#   "StartDate": _"YYYY-MM-DD",
+#   "EndDate":_"YYYY-MM-DD",
+#   "Entity": "Cruce",
+#   "Filter":["Listado de codigos"]
+#}
 
+def export_api_to_csv(output_file):
+    objetoAPI = pydataxm.ReadDB()
+    collections = objetoAPI.get_collections()
 
-import csv
+    with open(output_file, mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        
+        # Escribir los nombres de las colecciones como encabezados
+        writer.writerow(collections)
+        
+        # Para cada colección, obtener los datos y escribirlos
+        for collection in collections:
+            # Asumiendo que hay un método para obtener datos de una colección específica
+            # Ajusta esto según la API real
+            data = objetoAPI.request_data()
+            for item in data:
+                writer.writerow(item)
 
-
-with open("collectionsAPI.csv", mode='w', newline='') as file:
-    writer = csv.writer(file)
-    writer.writerow(["Data Lake"])
-    for i in (objetoAPI.get_collections()):
-        writer.writerow(objetoAPI.get_collections())  # Ajusta según las variables
-
+# Uso de la función
+export_api_to_csv("output.csv")
