@@ -11,8 +11,13 @@ class App:
 
         # Configuración de dispositivos
         self.dispositivos = [
-            moduloCalculo.Dispositivo("Lámpara Tradicional", 60, "Luz"),
-            moduloCalculo.Dispositivo("Lámpara LED", 10, "Luz")
+            moduloCalculo.Dispositivo("Lámpara LED", 10, "Luz"),
+            moduloCalculo.Dispositivo("Refrigerador", 300, "Luz"),
+            moduloCalculo.Dispositivo("Televisor", 200, "Luz"),
+            moduloCalculo.Dispositivo("Aire Acondicionado", 2000, "Climatización"),
+            moduloCalculo.Dispositivo("Microondas", 850, "Calentador"),
+            moduloCalculo.Dispositivo("Portátil", 190, "Dispositivo Electrónico"),
+            moduloCalculo.Dispositivo("Celular", 15, "Dispositivo Electrónico")
         ]
 
         # Widgets de la interfaz
@@ -48,7 +53,8 @@ class App:
         for dispositivo in self.dispositivos:
             if dispositivo.nombre == dispositivo_seleccionado:
                 consumo = dispositivo.consumo_energia(horas_uso)
-                self.label_resultado.config(text=f"Consumo: {consumo} kWh")
+                costo = dispositivo.costo_energia(horas_uso)
+                self.label_resultado.config(text=f"Consumo: {consumo:.2f} kWh\nCosto: ${costo:.2f}")
                 self.actualizar_grafica()
                 break
     
