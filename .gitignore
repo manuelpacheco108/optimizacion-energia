@@ -1,2 +1,5 @@
 # Ignora archivos los archivos de caché
 __pycache__/
+# Ignora archivos png y pdf
+*.png
+*.pdf
