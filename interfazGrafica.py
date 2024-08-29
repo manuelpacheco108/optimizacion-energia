@@ -16,6 +16,10 @@ class App:
         self.figuras = []
         self.datos_registrados = []
         
+        # Variables para almacenar el consumo total y costo total
+        self.consumo_total = 0
+        self.costo_total = 0
+        
         # Configuración de dispositivos
         self.dispositivos = [
             moduloCalculo.Dispositivo("Lámpara LED", 10, "Luz"),
@@ -55,6 +59,11 @@ class App:
             # Añadir nueva página si hay más gráficas
             c.showPage()
         
+        # Agregar el consumo total y costo total al final del PDF
+        c.drawString(100, 750, "Consumo Total Acumulado:")
+        c.drawString(100, 730, f"Consumo Total: {self.consumo_total:.2f} kWh")
+        c.drawString(100, 710, f"Costo Total: ${self.costo_total:.2f}")
+        
         # Guardar el PDF
         c.save()
 
@@ -91,10 +100,6 @@ class App:
         dispositivo_seleccionado = self.combo_dispositivo.get()
         horas_uso = float(self.entry_horas.get())
         
-        consumos = []
-        nombres = []
-        consumoTotal = 0
-        costoTotal = 0
         for dispositivo in self.dispositivos:
             if dispositivo.nombre == dispositivo_seleccionado:
                 consumo = dispositivo.consumo_energia(horas_uso)
@@ -108,10 +113,14 @@ class App:
                     "costo": costo
                 })
                 
+                # Actualizar el consumo total y el costo total
+                self.consumo_total += consumo
+                self.costo_total += costo
+                
                 self.label_resultado.config(text=f"Consumo: {dispositivo_seleccionado}  {consumo:.2f} kWh\nCosto: ${costo:.2f}")
+                self.label_resultadoTotal.config(text=f"Consumo Total: {self.consumo_total:.2f} kWh\nCosto Total: ${self.costo_total:.2f}")
                 self.actualizar_grafica()
-                break 
-               
+                break    
         
     def actualizar_grafica(self):
         consumos = [d.consumo_energia(float(self.entry_horas.get())) for d in self.dispositivos]
