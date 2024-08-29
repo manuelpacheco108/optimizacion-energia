@@ -1,14 +1,21 @@
-# Desarrollo de interfaz gráfica
 import tkinter as tk
 from tkinter import ttk
 import moduloCalculo
 import visualizacionDatos
-from fpdf import FPDF
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib.utils import ImageReader
+from io import BytesIO
+
 class App:
     def __init__(self, root):
         self.root = root
         self.root.title("Consumo Energético 💡")
-
+        
+        # Listas para guardar las figuras y datos
+        self.figuras = []
+        self.datos_registrados = []
+        
         # Configuración de dispositivos
         self.dispositivos = [
             moduloCalculo.Dispositivo("Lámpara LED", 10, "Luz"),
@@ -23,24 +30,33 @@ class App:
         # Widgets de la interfaz
         self.create_widgets()
 
-    def exportar_a_pdf(self, consumos, nombres, filename='reporteDatos.pdf'):
-        pdf = FPDF()
-        pdf.add_page()
+    def exportar_pdf(self):
+        c = canvas.Canvas("reporte_consumo.pdf", pagesize=letter)
+        width, height = letter
 
-        # Título
-        pdf.set_font("Arial", size=12)
-        pdf.cell(200, 10, txt="Reporte de Consumo Energético", ln=True, align='C')
-
-        # Agregar el contenido
-        pdf.ln(10)
-        for nombre, consumo in zip(nombres, consumos):
-            pdf.cell(200, 10, txt=f"{nombre}: {consumo:.2f} kWh", ln=True)
-
-        # Agregar la gráfica
-        pdf.image('grafica.png', x=10, y=None, w=pdf.w - 20)
-
+        for figura, datos in zip(self.figuras, self.datos_registrados):
+            # Guardar la figura en un objeto BytesIO en formato PNG
+            buf = BytesIO()
+            figura.savefig(buf, format='png')
+            buf.seek(0)  # Mover al inicio del objeto BytesIO
+            
+            # Convertir el objeto BytesIO a ImageReader
+            image = ImageReader(buf)
+            
+            # Ajustar la posición y tamaño de la imagen en el PDF
+            c.drawImage(image, 0, height - 400, width=width, height=300)
+            
+            # Añadir los datos correspondientes debajo de la gráfica
+            c.drawString(100, 400, f"Dispositivo: {datos['dispositivo']}")
+            c.drawString(100, 380, f"Horas de uso: {datos['horas']}")
+            c.drawString(100, 360, f"Consumo: {datos['consumo']:.2f} kWh")
+            c.drawString(100, 340, f"Costo: ${datos['costo']:.2f}")
+            
+            # Añadir nueva página si hay más gráficas
+            c.showPage()
+        
         # Guardar el PDF
-        pdf.output(filename)
+        c.save()
 
     def create_widgets(self):
         # Selección de dispositivo
@@ -67,40 +83,46 @@ class App:
         self.label_resultadoTotal = tk.Label(self.root, text="")
         self.label_resultadoTotal.pack()
 
+        # Botón para exportar el PDF
+        self.button_exportar_pdf = tk.Button(self.root, text="Exportar a PDF 📄", command=self.exportar_pdf)
+        self.button_exportar_pdf.pack()
+
     def calcular_consumo(self):
         dispositivo_seleccionado = self.combo_dispositivo.get()
         horas_uso = float(self.entry_horas.get())
-    
+        
         consumos = []
         nombres = []
         consumoTotal = 0
         costoTotal = 0
-    
         for dispositivo in self.dispositivos:
             if dispositivo.nombre == dispositivo_seleccionado:
                 consumo = dispositivo.consumo_energia(horas_uso)
                 costo = dispositivo.costo_energia(horas_uso)
+                
+                # Registro de datos
+                self.datos_registrados.append({
+                    "dispositivo": dispositivo_seleccionado,
+                    "horas": horas_uso,
+                    "consumo": consumo,
+                    "costo": costo
+                })
+                
                 self.label_resultado.config(text=f"Consumo: {dispositivo_seleccionado}  {consumo:.2f} kWh\nCosto: ${costo:.2f}")
+                self.actualizar_grafica()
+                break 
+               
         
-        # Acumular los consumos y nombres para el total
-            consumos.append(dispositivo.consumo_energia(horas_uso))
-            nombres.append(dispositivo.nombre)
-            consumoTotal += dispositivo.consumo_energia(horas_uso)
-            costoTotal += dispositivo.costo_energia(horas_uso)
-
-    # Mostrar el resultado total
-        self.label_resultadoTotal.config(text=f"Consumo Total: {consumoTotal:.2f} kWh\nCosto Total: ${costoTotal:.2f}")
-
-    # Actualizar la gráfica y guardarla
-        self.actualizar_grafica()
-
-    # Exportar los resultados y la gráfica a un PDF
-        self.exportar_a_pdf(consumos, nombres)
-    
     def actualizar_grafica(self):
         consumos = [d.consumo_energia(float(self.entry_horas.get())) for d in self.dispositivos]
         nombres = [d.nombre for d in self.dispositivos]
-        visualizacionDatos.graficar_consumo(consumos, nombres, 'grafica.png')
+
+        # Obtener la figura desde visualizacionDatos y almacenarla en self.figuras
+        figura = visualizacionDatos.graficar_consumo(consumos, nombres)
+        self.figuras.append(figura)
+
+        # Mostrar la gráfica generada
+        figura.show()
 
 if __name__ == "__main__":
     root = tk.Tk()
