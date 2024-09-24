@@ -1,18 +1,14 @@
-# Módulos de cálculos de energía
-
 class Dispositivo:
-    def __init__(self, nombre, potencia, tipo, descripcion=""):
+    def __init__(self, nombre, potencia, categoria):
         self.nombre = nombre
-        self.potencia = potencia  # W
-        self.tipo = tipo  # Tipo de dispositivo
-        self.descripcion = descripcion
-        self.tarifa_energia = 739 
+        self.potencia = potencia  # Potencia en vatios (W)
+        self.categoria = categoria
     
-    def consumo_energia(self, horas_uso):
-        consumo = (self.potencia / 1000) * horas_uso
-        return consumo  # kWh
-    
-    def costo_energia(self, horas_uso):
-        consumo = self.consumo_energia(horas_uso)
-        return consumo * self.tarifa_energia # Costo
-
+    def costo_energia(self, horas_uso, precio_kWh=622.33):
+        """
+        Calcula el costo de energía para usar el dispositivo durante las horas indicadas.
+        Asume un costo promedio por kWh (kilovatio-hora).
+        """
+        consumo_kWh = (self.potencia / 1000) * horas_uso  # Conversión de vatios a kilovatios y multiplicación por horas
+        costo = consumo_kWh * precio_kWh  # Costo total según el precio por kWh
+        return costo
