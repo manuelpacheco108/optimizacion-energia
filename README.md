@@ -50,9 +50,10 @@ Una vez que tenemos la energía cinética, se puede convertir a energía eléctr
 
        pip install matplotlib
 2. FPDF (Creación de archivos pdf)
-
+   
        pip install fpdf
-3. API XM
+       pip install reportlab
+4. API XM
 
        pip install pydataxm
 
